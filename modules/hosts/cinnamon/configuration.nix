@@ -6,6 +6,7 @@
         boot
         home-manager
         impermanence
+        networking
         niri
         nvidia
         ssh
@@ -16,6 +17,8 @@
         iam
       ];
 
+      boot.type = "lanzaboote";
+
       home-manager.users.tar = {
         imports = with config.flake.modules.homeManager; [
           browser
@@ -23,8 +26,11 @@
           nvidia
         ];
 
-        home.packages = [
-          pkgs.teams-for-linux
+        home.packages = with pkgs; [
+          fuzzel
+          alacritty
+          brightnessctl
+          wl-clipboard
         ];
       };
     };

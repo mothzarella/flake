@@ -21,6 +21,7 @@
         imports = with self.modules.nixos; [
           # TODO: add modules
         ];
+
         users.users.tar = {
           extraGroups = ["audio"];
         };
@@ -30,9 +31,21 @@
         imports = with self.modules.homeManager; [
           # TODO: add modules
         ];
+
         home.packages = with pkgs; [
           unzip
         ];
+
+        programs.git = {
+          enable = true;
+          settings = {
+            user = {
+              name = "tar";
+              email = "git@mothzarella.dev";
+            };
+            init.defaultBranch = "main";
+          };
+        };
       };
     }
   ];

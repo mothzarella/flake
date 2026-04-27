@@ -17,6 +17,7 @@
     services = {
       thermald.enable = true;
       irqbalance.enable = true;
+      auto-cpufreq.enable = true;
     };
   };
 }

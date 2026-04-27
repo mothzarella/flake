@@ -13,10 +13,13 @@
           users.users."${username}" = {
             isNormalUser = true;
             home = "/home/${username}";
+            initialPassword = "changeme";
             extraGroups = lib.optionals isAdmin ["wheel" "networkmanager"];
             shell = pkgs.fish;
           };
+
           programs.fish.enable = true;
+
           home-manager.users."${username}".imports = [
             self.modules.homeManager."${username}"
           ];

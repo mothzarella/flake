@@ -26,6 +26,7 @@
               content = {
                 type = "luks";
                 name = "cryptroot";
+                passwordFile = "/tmp/disk-password";
                 settings.allowDiscards = true;
                 content = {
                   type = "btrfs";

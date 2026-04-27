@@ -22,6 +22,14 @@
     };
 
     services.gnome.gnome-keyring.enable = true;
+
+    services.greetd = {
+      enable = true;
+      settings.default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd 'uwsm start niri'";
+        user = "greeter";
+      };
+    };
   };
 
   flake.modules.homeManager.niri = {config, ...}: {
