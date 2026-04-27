@@ -4,5 +4,8 @@
     file.hasExt "nix"
     && file.name != "default.nix";
 in {
-  imports = fs.toList (fs.fileFilter isNixModule ./.);
+  imports =
+    ./.
+    |> fs.fileFilter isNixModule
+    |> fs.toList;
 }

@@ -1,21 +1,17 @@
-{
-  inputs,
-  config,
-  ...
-}: {
-  flake.modules.nixos.impermanence = {...}: {
+{inputs, ...}: {
+  flake.modules.nixos.impermanence = {
     imports = [inputs.impermanence.nixosModules.impermanence];
 
     boot.initrd.systemd.services.rollback = {
       description = "Rollback BTRFS root subvolume to a pristine state";
       wantedBy = ["initrd.target"];
-      after = ["systemd-cryptsetup@${config.cryptroot}.service"];
+      after = ["systemd-cryptsetup@cryptroot.service"];
       before = ["sysroot.mount"];
       unitConfig.DefaultDependencies = "no";
       serviceConfig.Type = "oneshot";
       script = ''
         mkdir -p /btrfs_tmp
-        mount -o subvol=/ /dev/mapper/${config.cryptroot} /btrfs_tmp
+        mount -o subvol=/ /dev/mapper/cryptroot /btrfs_tmp
 
         if [[ -e /btrfs_tmp/@root ]]; then
           mkdir -p /btrfs_tmp/@old_roots

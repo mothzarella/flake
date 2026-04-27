@@ -36,6 +36,7 @@
             {
               nixpkgs.hostPlatform = system;
               nixpkgs.pkgs = pkgs;
+              networking.hostName = name;
             }
 
             # Modules

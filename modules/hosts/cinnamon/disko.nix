@@ -1,8 +1,4 @@
-{
-  inputs,
-  config,
-  ...
-}: {
+{inputs, ...}: {
   flake.modules.nixos.cinnamon = {
     imports = [inputs.disko.nixosModules.disko];
 
@@ -29,7 +25,7 @@
               size = "100%";
               content = {
                 type = "luks";
-                name = config.cryptroot;
+                name = "cryptroot";
                 settings.allowDiscards = true;
                 content = {
                   type = "btrfs";
