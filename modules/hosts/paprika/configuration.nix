@@ -5,14 +5,11 @@
       imports = with self.modules.nixos; [
         cachix
         home-manager
-        impermanence
         system
 
         # Users
         tar
       ];
-
-      impermanence.type = "wsl";
     };
   };
 }

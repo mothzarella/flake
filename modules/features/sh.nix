@@ -1,5 +1,9 @@
-{
-  flake.modules.homeManager.fish = {pkgs, ...}: {
+{self, ...}: {
+  flake.modules.homeManager.fish = {
+    pkgs,
+    config,
+    ...
+  }: {
     programs.fish = {
       enable = true;
       interactiveShellInit = ''
@@ -15,7 +19,7 @@
       functions = {
         fish_mode_prompt = "";
         fish_prompt = ''
-          set -l arrow "  "
+          set -l arrow "  "
           set_color normal
           echo -n (prompt_pwd -d 1)
           echo -n (fish_git_prompt)
@@ -41,8 +45,8 @@
       };
     };
 
-    home.persistence."/persistent".directories = [
-      ".config/fish"
-    ];
+    home = self.lib.mkIfPersistence config {
+      persistence."/persistent".files = [".local/share/fish/fish_history"];
+    };
   };
 }

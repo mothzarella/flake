@@ -29,18 +29,28 @@
         };
       };
 
-      homeManager.tar = {pkgs, ...}: {
+      homeManager.tar = {
+        pkgs,
+        config,
+        ...
+      }: {
         imports = with self.modules.homeManager; [
           fish
           tmux
         ];
 
-        home.packages = with pkgs; [
-          unzip
+        home =
+          {
+            packages = with pkgs; [
+              unzip
 
-          llm-agents.junie
-          llm-agents.claude-code
-        ];
+              llm-agents.junie
+              llm-agents.claude-code
+            ];
+          }
+          // self.lib.mkIfPersistence config {
+            persistence."/persistent".directories = [".config/flake"];
+          };
 
         programs = {
           neovim.enable = true;
