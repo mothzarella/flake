@@ -1,9 +1,10 @@
-{config, ...}: {
+{self, ...}: {
   configurations.nixos.cinnamon = {
     system = "x86_64-linux";
     module = {pkgs, ...}: {
-      imports = with config.flake.modules.nixos; [
+      imports = with self.modules.nixos; [
         boot
+        cachix
         home-manager
         impermanence
         networking
@@ -21,7 +22,7 @@
       impermanence.type = "bare-metal";
 
       home-manager.users.tar = {
-        imports = with config.flake.modules.homeManager; [
+        imports = with self.modules.homeManager; [
           browser
           niri
           nvidia

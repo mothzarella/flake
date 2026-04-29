@@ -21,13 +21,17 @@
 
     config = lib.mkMerge [
       {
+        programs.fuse.userAllowOther = true;
+
         home-manager.sharedModules = [
-          ({config, ...}: {
+          {
             home.persistence."/persistent" = {
-              directories = [".config/flake"];
+              directories = [
+                ".config/flake"
+              ];
               files = [".bash_history"];
             };
-          })
+          }
         ];
       }
 
@@ -68,8 +72,6 @@
 
         fileSystems."/persistent".neededForBoot = true;
 
-        programs.fuse.userAllowOther = true;
-
         environment.persistence."/persistent" = {
           hideMounts = true;
           directories = [
@@ -87,10 +89,23 @@
       })
 
       (lib.mkIf (config.impermanence.type == "wsl") {
+        fileSystems."/home/${config.wsl.defaultUser}" = {
+          device = "none";
+          fsType = "tmpfs";
+          options = ["defaults" "size=1G" "mode=700" "uid=1000" "gid=100"];
+          neededForBoot = true;
+        };
+
         systemd.tmpfiles.rules = [
           "d /persistent 0755 root root -"
           "d /persistent/home 0755 root root -"
         ];
+
+        environment.persistence."/persistent" = {
+          directories = [
+            "/var/lib/nixos"
+          ];
+        };
       })
     ];
   };

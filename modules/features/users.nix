@@ -1,39 +1,45 @@
 {
-  config,
-  lib,
   self,
+  lib,
   ...
 }: {
   flake.modules = lib.mkMerge [
-    (config.flake.factory.user {
+    (self.factory.user {
       username = "iam";
       isAdmin = true;
     })
 
     # Default ------------------------------------------------------------------
 
-    (config.flake.factory.user {
+    (self.factory.user {
       username = "tar";
       isAdmin = true;
     })
     {
-      nixos.tar = {
-        imports = with self.modules.nixos; [
-          # TODO: add modules
-        ];
+      nixos.tar = {pkgs, ...}: {
+        # imports = with self.modules.nixos; [
+        #   # TODO: add modules
+        # ];
+
+        programs.fish.enable = true;
 
         users.users.tar = {
           extraGroups = ["audio"];
+          shell = pkgs.fish;
         };
       };
 
       homeManager.tar = {pkgs, ...}: {
         imports = with self.modules.homeManager; [
-          # TODO: add modules
+          fish
+          tmux
         ];
 
         home.packages = with pkgs; [
           unzip
+
+          llm-agents.junie
+          llm-agents.claude-code
         ];
 
         programs = {

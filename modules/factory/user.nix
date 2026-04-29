@@ -1,5 +1,5 @@
 {self, ...}: {
-  config.flake.factory.user = {
+  flake.factory.user = {
     username,
     isAdmin ? false,
   }: {
@@ -15,10 +15,7 @@
             home = "/home/${username}";
             initialPassword = "changeme";
             extraGroups = lib.optionals isAdmin ["wheel" "networkmanager"];
-            shell = pkgs.fish;
           };
-
-          programs.fish.enable = true;
 
           home-manager.users."${username}".imports = [
             self.modules.homeManager."${username}"
