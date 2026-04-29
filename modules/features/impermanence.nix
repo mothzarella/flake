@@ -96,11 +96,6 @@
           neededForBoot = true;
         };
 
-        systemd.tmpfiles.rules = [
-          "d /persistent 0755 root root -"
-          "d /persistent/home 0755 root root -"
-        ];
-
         environment.persistence."/persistent" = {
           directories = [
             "/var/lib/nixos"
