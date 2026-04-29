@@ -18,6 +18,7 @@
       ];
 
       boot.type = "lanzaboote";
+      impermanence.type = "bare-metal";
 
       home-manager.users.tar = {
         imports = with config.flake.modules.homeManager; [

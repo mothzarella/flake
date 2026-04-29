@@ -24,10 +24,11 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    llm-agents.url = "github:numtide/llm-agents.nix";
+    nixos-wsl.url = "github:nix-community/NixOS-WSL";
   };
 
   outputs = inputs @ {flake-parts, ...}:
-    flake-parts.lib.mkFlake {inherit inputs;} {
-      imports = [./modules];
-    };
+    flake-parts.lib.mkFlake {inherit inputs;} {imports = [./modules];};
 }

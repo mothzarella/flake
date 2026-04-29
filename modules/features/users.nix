@@ -36,14 +36,17 @@
           unzip
         ];
 
-        programs.git = {
-          enable = true;
-          settings = {
-            user = {
-              name = "tar";
-              email = "git@mothzarella.dev";
+        programs = {
+          neovim.enable = true;
+          git = {
+            enable = true;
+            settings = {
+              user = {
+                name = "tar";
+                email = "git@mothzarella.dev";
+              };
+              init.defaultBranch = "main";
             };
-            init.defaultBranch = "main";
           };
         };
       };

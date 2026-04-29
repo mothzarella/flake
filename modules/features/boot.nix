@@ -5,6 +5,8 @@
     config,
     ...
   }: {
+    imports = [inputs.lanzaboote.nixosModules.lanzaboote];
+
     options.boot.type = lib.mkOption {
       type = lib.types.enum ["systemd-boot" "lanzaboote"];
       default = "systemd-boot";
@@ -24,8 +26,6 @@
       })
 
       (lib.mkIf (config.boot.type == "lanzaboote") {
-        imports = [inputs.lanzaboote.nixosModules.lanzaboote];
-
         boot.loader.systemd-boot.enable = lib.mkForce false;
         boot.lanzaboote = {
           enable = true;

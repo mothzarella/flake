@@ -17,5 +17,7 @@
 
     # Equivalent to  inputs'.nixpkgs.legacyPackages.hello;
     packages.default = pkgs.hello;
+
+    formatter = pkgs.alejandra;
   };
 }
