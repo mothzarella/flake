@@ -9,9 +9,12 @@
         impermanence
         networking
         niri
-        nvidia
         ssh
         system
+
+        # GPU
+        nvidia
+        opengl
 
         # Users
         tar

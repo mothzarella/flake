@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.system = {
+  flake.modules.nixos.system = {pkgs, ...}: {
     system.stateVersion = "25.11";
 
     time.timeZone = "Europe/Rome";
@@ -8,7 +8,14 @@
 
     programs.nix-ld.enable = true;
 
+    environment.systemPackages = with pkgs; [
+      alejandra
+      nil
+    ];
+
     nix = {
+      channel.enable = false;
+
       settings = {
         experimental-features = [
           "nix-command"

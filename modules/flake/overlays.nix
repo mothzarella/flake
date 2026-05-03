@@ -1,4 +1,8 @@
-{inputs, lib, ...}: {
+{
+  inputs,
+  lib,
+  ...
+}: {
   flake.overlays.default = lib.composeManyExtensions [
     inputs.llm-agents.overlays.default
 

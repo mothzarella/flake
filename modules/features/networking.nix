@@ -6,7 +6,6 @@
         wifi.powersave = true;
       };
 
-      # Firewall
       firewall.enable = true;
     };
 

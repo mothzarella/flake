@@ -5,6 +5,11 @@
     wsl = {
       enable = true;
       defaultUser = "tar";
+      useWindowsDriver = true;
+    };
+
+    home-manager.users.tar = {
+      programs.zed-editor.enable = true;
     };
   };
 }

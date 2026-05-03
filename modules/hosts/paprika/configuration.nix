@@ -6,6 +6,7 @@
         cachix
         home-manager
         system
+        opengl
 
         # Users
         tar

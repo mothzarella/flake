@@ -8,7 +8,10 @@
     imports = [inputs.lanzaboote.nixosModules.lanzaboote];
 
     options.boot.type = lib.mkOption {
-      type = lib.types.enum ["systemd-boot" "lanzaboote"];
+      type = lib.types.enum [
+        "systemd-boot"
+        "lanzaboote"
+      ];
       default = "systemd-boot";
       description = "Boot loader type: systemd-boot or lanzaboote (Secure Boot)";
     };

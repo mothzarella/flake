@@ -1,16 +1,39 @@
 {inputs, ...}: {
+  flake.modules.nixos.opengl = {
+    config,
+    lib,
+    ...
+  }: let
+    isWsl = config.wsl.enable or false;
+  in {
+    config = lib.mkMerge [
+      {
+        hardware.graphics = {
+          enable = true;
+          enable32Bit = true;
+        };
+      }
+
+      # WSL --------------------------------------------------------------------
+
+      (lib.mkIf isWsl {
+        environment.variables = {
+          MESA_D3D12_DEFAULT_ADAPTER_NAME = "NVIDIA";
+          GALLIUM_DRIVER = "d3d12";
+        };
+
+        environment.sessionVariables = {
+          LD_LIBRARY_PATH = "/usr/lib/wsl/lib:/run/opengl-driver/lib";
+        };
+      })
+    ];
+  };
+
   flake.modules.nixos.nvidia = {config, ...}: let
     nvidiaPkg = config.hardware.nvidia.package;
   in {
     imports = [inputs.nixos-hardware.nixosModules.common-gpu-nvidia-sync];
 
-    # OpenGL
-    hardware.graphics = {
-      enable = true;
-      enable32Bit = true;
-    };
-
-    # Nvidia
     hardware.nvidia = {
       open = nvidiaPkg ? open && nvidiaPkg ? firmware;
       prime = {
