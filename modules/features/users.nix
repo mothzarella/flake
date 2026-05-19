@@ -4,14 +4,14 @@
   ...
 }: {
   flake.modules = lib.mkMerge [
-    (self.factory.user {
+    (self.lib.mkUser {
       username = "iam";
       isAdmin = true;
     })
 
     # Default ------------------------------------------------------------------
 
-    (self.factory.user {
+    (self.lib.mkUser {
       username = "tar";
       isAdmin = true;
     })
