@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.networking = {pkgs, ...}: {
+  flake.modules.nixos.impermanence = {pkgs, ...}: {
     networking = {
       networkmanager = {
         enable = true;
@@ -9,7 +9,6 @@
       firewall.enable = true;
     };
 
-    # GUI: nm-connection-editor + nm-applet (tray)
     environment.systemPackages = with pkgs; [
       networkmanagerapplet
     ];

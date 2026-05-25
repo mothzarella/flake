@@ -8,6 +8,10 @@
       useWindowsDriver = true;
     };
 
+    environment.variables = {
+      MESA_D3D12_DEFAULT_ADAPTER_NAME = "NVIDIA";
+    };
+
     home-manager.users.tar = {
       programs.zed-editor.enable = true;
     };

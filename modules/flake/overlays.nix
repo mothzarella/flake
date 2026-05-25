@@ -6,6 +6,7 @@
   flake.overlays.default = lib.composeManyExtensions [
     inputs.llm-agents.overlays.default
 
+    # Stable
     (final: prev: {
       stable = import inputs.nixpkgs-stable {
         inherit (final.stdenv.hostPlatform) system;

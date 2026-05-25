@@ -1,11 +1,11 @@
 {lib, ...}: let
   fs = lib.fileset;
-  isNixModule = file:
+  isModule = file:
     file.hasExt "nix"
     && file.name != "default.nix";
 in {
   imports =
     ./.
-    |> fs.fileFilter isNixModule
+    |> fs.fileFilter isModule
     |> fs.toList;
 }
