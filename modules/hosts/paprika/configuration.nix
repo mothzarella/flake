@@ -5,7 +5,7 @@
       module = {
         imports = with self.modules.nixos; [
           cachix
-          opengl
+          gpu
           system
           tar
         ];

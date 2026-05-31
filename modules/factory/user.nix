@@ -39,7 +39,10 @@
     );
 
     homeManager = lib.genAttrs (lib.attrNames config.factory.user) (username: {
-      home.username = username;
+      home = {
+        username = username;
+        enableNixpkgsReleaseCheck = false;
+      };
     });
   };
 }

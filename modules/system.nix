@@ -1,5 +1,8 @@
-{
+{inputs, ...}: {
   flake.modules.nixos.system = {pkgs, ...}: {
+    # NOTE: garbage-collector is automatically managed by `determinate` module.
+    imports = [inputs.determinate.nixosModules.default];
+
     system.stateVersion = "25.11";
 
     time.timeZone = "Europe/Rome";
@@ -9,8 +12,8 @@
     programs.nix-ld.enable = true;
 
     environment.systemPackages = with pkgs; [
-      alejandra
-      nil
+      alejandra # Formatter
+      nil # LSP
     ];
 
     nix = {
@@ -30,12 +33,6 @@
           "root"
           "@wheel"
         ];
-      };
-
-      gc = {
-        automatic = true;
-        dates = "weekly";
-        options = "--delete-older-than 30d";
       };
     };
   };

@@ -7,19 +7,21 @@
     ...
   }: {
     imports = [inputs.lanzaboote.nixosModules.lanzaboote];
-    config = {
-      environment.systemPackages = [pkgs.sbctl];
+    config =
+      {
+        environment.systemPackages = [pkgs.sbctl];
 
-      # Lanzaboote replaces the systemd-boot module.
-      boot.loader.systemd-boot.enable = lib.mkForce false;
+        # Lanzaboote replaces the systemd-boot module.
+        boot.loader.systemd-boot.enable = lib.mkForce false;
 
-      boot.lanzaboote = {
-        enable = true;
-        pkiBundle = "/var/lib/sbctl";
+        boot.lanzaboote = {
+          enable = true;
+          pkiBundle = "/var/lib/sbctl";
+        };
+      }
+      // lib.optionalAttrs (options ? environment.persistence) {
+        environment.persistence."/persistent".directories = ["/etc/secureboot"];
       };
-    } // lib.optionalAttrs (options ? environment.persistence) {
-      environment.persistence."/persistent".directories = ["/etc/secureboot"];
-    };
   };
 
   flake.modules.nixos.systemd = {

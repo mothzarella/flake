@@ -34,8 +34,9 @@
         }:
           inputs.nixpkgs.lib.nixosSystem {
             specialArgs = {
-              packages = config.packages;
               inherit inputs inputs';
+              packages = config.packages;
+              self = inputs.self;
             };
 
             modules = [

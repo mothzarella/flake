@@ -5,21 +5,25 @@
     nixos.tar = {pkgs, ...}: {
       users.users.tar = {
         extraGroups = ["audio" "networkmanager"];
-        shell = pkgs.fish;
+        shell = pkgs.nushell;
       };
-
-      programs.fish.enable = true;
     };
 
-    homeManager.tar = {
+    homeManager.tar = {pkgs, ...}: {
       imports = with self.modules.homeManager; [
-        fish
+        nushell
         tmux
       ];
 
-      home.stateVersion = "26.05";
+      home = {
+        stateVersion = "26.05";
+        packages = with pkgs; [
+          neovim
+          emmylua-ls
+          vimPlugins.nvim-treesitter.withAllGrammars
+        ];
+      };
 
-      programs.neovim.enable = true;
       programs.git = {
         enable = true;
         settings = {
