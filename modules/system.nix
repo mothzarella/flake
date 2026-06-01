@@ -1,8 +1,5 @@
-{inputs, ...}: {
-  flake.modules.nixos.system = {pkgs, ...}: {
-    # NOTE: garbage-collector is automatically managed by `determinate` module.
-    imports = [inputs.determinate.nixosModules.default];
-
+{
+  flake.modules.nixos.base = {pkgs, ...}: {
     system.stateVersion = "25.11";
 
     time.timeZone = "Europe/Rome";

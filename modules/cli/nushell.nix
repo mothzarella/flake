@@ -52,9 +52,13 @@
           emacs = "line";
         };
       };
-      shellAliases = {
+      shellAliases = let
+        path = "($env.HOME)/.config/flake";
+        hostname = osConfig.networking.hostName;
+      in {
         cls = "clear";
-        switch = "sudo nixos-rebuild switch --flake $\"($env.HOME)/.config/flake#${osConfig.networking.hostName}\"";
+        switch = "sudo nixos-rebuild switch --flake $\"${path}#${hostname}\"";
+        update = "nix flake update --flake $\"${path}\"";
       };
     };
   };

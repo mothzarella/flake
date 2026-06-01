@@ -4,13 +4,10 @@
       system = "x86_64-linux";
       module = {
         imports = with self.modules.nixos; [
-          home-manager
-          cachix
+          cpu
           firmware
-          systemd
-          lanzaboote
-          opengl
-          system
+          nvidia
+          secure-boot
           tar
         ];
       };

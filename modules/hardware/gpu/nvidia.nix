@@ -1,10 +1,18 @@
-{inputs, ...}: {
+{
+  inputs,
+  self,
+  ...
+}: {
   flake.modules.nixos.nvidia = {
     config,
     pkgs,
     ...
   }: {
-    imports = [inputs.nixos-hardware.nixosModules.common-gpu-nvidia-sync];
+    imports = [
+      inputs.nixos-hardware.nixosModules.common-gpu-nvidia-sync
+
+      self.modules.nixos.gpu
+    ];
 
     hardware.nvidia = {
       open = false;

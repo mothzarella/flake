@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.impermanence = {pkgs, ...}: {
+  flake.modules.nixos.networking = {pkgs, ...}: {
     networking = {
       networkmanager = {
         enable = true;

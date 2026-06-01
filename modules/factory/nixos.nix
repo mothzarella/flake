@@ -2,6 +2,7 @@
   config,
   lib,
   inputs,
+  self,
   withSystem,
   ...
 }: {
@@ -46,7 +47,8 @@
                 networking.hostName = name;
               }
 
-              inputs.self.modules.nixos.${name}
+              self.modules.nixos.${name}
+              self.modules.nixos.base
               module
             ];
           })

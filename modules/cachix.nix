@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.cachix = {
+  flake.modules.nixos.base = {
     nix.settings = {
       extra-substituters = [
         "https://nix-community.cachix.org"

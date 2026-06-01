@@ -6,6 +6,7 @@
     wsl = {
       enable = true;
       defaultUser = "tar";
+      docker-desktop.enable = true;
       useWindowsDriver = true;
       startMenuLaunchers = true;
     };

@@ -1,12 +1,21 @@
-{inputs, ...}: {
-  flake.modules.nixos.lanzaboote = {
+{
+  inputs,
+  self,
+  ...
+}: {
+  flake.modules.nixos.secure-boot = {
     config,
     lib,
     options,
     pkgs,
     ...
   }: {
-    imports = [inputs.lanzaboote.nixosModules.lanzaboote];
+    imports = [
+      inputs.lanzaboote.nixosModules.lanzaboote
+
+      self.modules.nixos.systemd
+    ];
+
     config =
       {
         environment.systemPackages = [pkgs.sbctl];
@@ -22,10 +31,5 @@
       // lib.optionalAttrs (options ? environment.persistence) {
         environment.persistence."/persistent".directories = ["/etc/secureboot"];
       };
-  };
-
-  flake.modules.nixos.systemd = {
-    initrd.systemd.enable = true;
-    boot.loader.systemd-boot.enable = true;
   };
 }

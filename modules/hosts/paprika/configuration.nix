@@ -4,9 +4,7 @@
       system = "x86_64-linux";
       module = {
         imports = with self.modules.nixos; [
-          cachix
           gpu
-          system
           tar
         ];
       };

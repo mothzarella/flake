@@ -20,7 +20,6 @@
         packages = with pkgs; [
           neovim
           emmylua-ls
-          vimPlugins.nvim-treesitter.withAllGrammars
         ];
       };
 
