@@ -30,6 +30,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # https://github.com/CachyOS/linux-cachyos#nixos
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
+
     llm-agents.url = "github:numtide/llm-agents.nix";
     nixos-wsl.url = "github:nix-community/NixOS-WSL";
   };

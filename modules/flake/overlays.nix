@@ -4,7 +4,8 @@
   ...
 }: {
   flake.overlays.default = lib.composeManyExtensions [
-    inputs.llm-agents.overlays.default
+    inputs.llm-agents.overlays.default # LLM Agents
+    inputs.nix-cachyos-kernel.overlays.default # CachyOS kernel
 
     # Stable
     (final: prev: {

@@ -5,9 +5,8 @@
       common-cpu-intel
     ];
 
-    # Kernel
     boot = {
-      kernelPackages = pkgs.stable.linuxPackages_zen; # Stable linux_zen
+      kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore-x86_64-v3;
       kernelParams = ["intel_pstate=active"];
     };
 
