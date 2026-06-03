@@ -7,7 +7,6 @@
           cpu
           firmware
           impermanence
-          nvidia
           secure-boot
           tar
         ];

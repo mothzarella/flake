@@ -12,18 +12,12 @@
 
     # CPU (Intel)
     hardware.cpu.intel.updateMicrocode = true;
-    powerManagement.cpuFreqGovernor = "schedutil";
-    services = {
-      thermald.enable = true;
-      irqbalance.enable = true;
-      auto-cpufreq.enable = true;
-    };
 
     # GPU (NVIDIA)
-    hardware.nvidia.prime = {
-      # lspci | grep -E "VGA|3D"
-      intelBusId = "PCI:0:2:0";
-      nvidiaBusId = "PCI:1:0:0";
-    };
+    # hardware.nvidia.prime = {
+    #   # lspci | grep -E "VGA|3D"
+    #   intelBusId = "PCI:0:2:0";
+    #   nvidiaBusId = "PCI:1:0:0";
+    # };
   };
 }

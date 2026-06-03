@@ -26,10 +26,12 @@
         boot.lanzaboote = {
           enable = true;
           pkiBundle = "/var/lib/sbctl";
+          autoGenerateKeys.enable = true;
+          autoEnrollKeys.enable = true;
         };
       }
       // lib.optionalAttrs (options ? environment.persistence) {
-        environment.persistence."/persistent".directories = ["/etc/secureboot"];
+        environment.persistence."/persistent".directories = ["/var/lib/sbctl"];
       };
   };
 }

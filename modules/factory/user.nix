@@ -30,6 +30,7 @@
           isNormalUser = true;
           home = "/home/${username}";
           extraGroups = lib.optionals isSudo ["wheel"];
+          initialPassword = "changeme";
         };
 
         home-manager.users.${username}.imports = [
@@ -39,10 +40,24 @@
     );
 
     homeManager = lib.genAttrs (lib.attrNames config.factory.user) (username: {
-      home = {
-        username = username;
-        enableNixpkgsReleaseCheck = false;
-      };
+      lib,
+      options,
+      ...
+    }: {
+      home =
+        {
+          username = username;
+          enableNixpkgsReleaseCheck = false;
+        }
+        // lib.optionalAttrs (options ? home.persistence) {
+          persistence."/persistent".directories = [
+            ".config/flake"
+            {
+              directory = ".ssh";
+              mode = "0700";
+            }
+          ];
+        };
     });
   };
 }
