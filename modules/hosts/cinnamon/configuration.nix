@@ -6,6 +6,7 @@
         imports = with self.modules.nixos; [
           cpu
           firmware
+          impermanence
           nvidia
           secure-boot
           tar

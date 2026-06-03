@@ -1,5 +1,7 @@
 {
-  flake.modules.nixos.uefi = {
+  flake.modules.nixos.firmware = {
+    boot.loader.efi.canTouchEfiVariables = true;
+
     services.fwupd.enable = true;
     hardware = {
       enableAllFirmware = true;

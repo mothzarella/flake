@@ -6,7 +6,7 @@
     ];
 
     boot = {
-      kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-bore-x86_64-v3;
+      kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
       kernelParams = ["intel_pstate=active"];
     };
 
@@ -17,6 +17,13 @@
       thermald.enable = true;
       irqbalance.enable = true;
       auto-cpufreq.enable = true;
+    };
+
+    # GPU (NVIDIA)
+    hardware.nvidia.prime = {
+      # lspci | grep -E "VGA|3D"
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
     };
   };
 }
