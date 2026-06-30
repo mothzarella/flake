@@ -1,26 +1,26 @@
-# https://nix-community.github.io/NixOS-WSL
-{inputs, ...}: {
-  flake.modules.nixos.paprika = {pkgs, ...}: {
+{
+  inputs,
+  lib,
+  ...
+}: {
+  flake.modules.nixos.wsl = {config, ...}: {
     imports = [inputs.nixos-wsl.nixosModules.default];
 
     wsl = {
       enable = true;
-      defaultUser = "tar";
       docker-desktop.enable = true;
       useWindowsDriver = true;
       startMenuLaunchers = true;
     };
 
+    # WSL graphics support — only when both WSL and graphics are active
     # https://github.com/nix-community/NixOS-WSL/issues/454
-    environment.variables = {
+    environment.variables = lib.mkIf (config.hardware.graphics.enable) {
       GALLIUM_DRIVER = "d3d12";
-      MESA_D3D12_DEFAULT_ADAPTER_NAME = "NVIDIA";
+      MESA_D3D12_DEFAULT_ADAPTER_NAME = lib.mkDefault "NVIDIA";
       LD_LIBRARY_PATH = "/usr/lib/wsl/lib:/run/opengl-driver/lib";
-    };
-
-    # TODO: create zed-editor module and move this there.
-    home-manager.users.tar = {
-      programs.zed-editor.enable = true;
+      LIBVA_DRIVER_NAME = "d3d12";
+      VDPAU_DRIVER = "va_gl";
     };
   };
 }

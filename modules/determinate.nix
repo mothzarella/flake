@@ -1,6 +1,5 @@
 {inputs, ...}: {
-  flake.modules.nixos.base = {pkgs, ...}: {
-    # NOTE: garbage-collector is automatically managed by `determinate` module.
+  flake.modules.nixos.default = {
     imports = [inputs.determinate.nixosModules.default];
   };
 }

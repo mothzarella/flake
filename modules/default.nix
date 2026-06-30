@@ -1,7 +1,9 @@
 {lib, ...}: let
   fs = lib.fileset;
   isModule = file:
-    file.hasExt "nix"
+    file.type
+    == "regular"
+    && file.hasExt "nix"
     && file.name != "default.nix";
 in {
   imports =

@@ -1,5 +1,9 @@
 {
-  flake.modules.nixos.gpu = {pkgs, ...}: {
+  flake.modules.nixos.graphics = {
+    pkgs,
+    lib,
+    ...
+  }: {
     hardware.graphics = {
       enable = true;
       enable32Bit = true;
@@ -11,9 +15,11 @@
 
       extraPackages32 = [pkgs.libva-vdpau-driver];
     };
-  };
 
-  flake.modules.homeManager.gpu = {pkgs, ...}: {
-    home.packages = [pkgs.mesa-demos];
+    environment.systemPackages = with pkgs; [
+      mesa-demos
+      vulkan-tools
+      libva-utils
+    ];
   };
 }

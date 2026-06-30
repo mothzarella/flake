@@ -1,37 +1,18 @@
-{self, ...}: {
-  factory.user.tar = {isSudo = true;};
-
-  flake.modules = {
-    nixos.tar = {pkgs, ...}: {
-      users.users.tar = {
-        extraGroups = ["audio" "networkmanager"];
-        shell = pkgs.nushell;
-      };
-    };
-
-    homeManager.tar = {pkgs, ...}: {
-      imports = with self.modules.homeManager; [
-        nushell
-        tmux
-      ];
-
-      home = {
-        stateVersion = "26.05";
-        packages = with pkgs; [
-          neovim
-          emmylua-ls
+{config, ...}: {
+  users.tar = {
+    email = "git@mothzarella.dev";
+    sudo = true;
+    groups = ["docker" "video"];
+    module = {...}: {
+      home-manager.users.tar = {pkgs, ...}: {
+        imports = with config.flake.modules.homeManager; [
+          zed
         ];
-      };
 
-      programs.git = {
-        enable = true;
-        settings = {
-          user = {
-            name = "tar";
-            email = "git@mothzarella.dev";
-          };
-          init.defaultBranch = "main";
-        };
+        home.packages = with pkgs; [
+          llm-agents.opencode # TODO: remove after `pi` setup is complete
+          llm-agents.junie
+        ];
       };
     };
   };
