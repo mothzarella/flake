@@ -26,13 +26,24 @@ module.
   the host's `module`, and `flake.modules.nixos.<name>` if it exists. It pins
   `system.stateVersion = "26.05"` and sets `networking.hostName = name`.
 - Several files merge into the shared `flake.modules.nixos.default`
-  (`nixos.nix`, `cache.nix`, `determinate.nix`, `security.nix`, `xdg.nix`)
-  and `flake.modules.homeManager.default` (`git.nix`, `xdg.nix`,
-  `security.nix`, plus the aggregator in `home-manager.nix` which imports
-  `home-manager`, `zed`, `agent`).
+  (`nixos.nix`, `cache.nix`, `determinate.nix`, `security.nix`, `xdg.nix`,
+  `ssh.nix`) and `flake.modules.homeManager.default` (`git.nix`, `xdg.nix`).
   Prefer merging cross-cutting settings into `default` over inventing a new
   module name per concern (dendritic guidance: avoid lower-level name
   proliferation).
+- `home-manager.nix` wires up home-manager itself: `flake.modules.nixos.home-manager`
+  imports the `home-manager` nixosModule and configures `home-manager.*`
+  options, while `flake.modules.homeManager.home-manager` enables
+  `programs.home-manager`, autoexpire, and derives `home.stateVersion` from
+  `osConfig.system.stateVersion`. Both are pulled in by `modules/users.nix`
+  for every user, on top of `flake.modules.homeManager.default`.
+- Opt-in (non-`default`) modules are wired explicitly where needed rather
+  than merged into `default`: `graphics.nix` (`flake.modules.nixos.graphics`)
+  and `wsl.nix` (`flake.modules.nixos.wsl`) are imported by
+  `modules/hosts/paprika.nix`; `zed.nix` (`flake.modules.homeManager.zed`) is
+  imported per-user (see `modules/users/tar.nix`). `agent.nix`
+  (`flake.modules.homeManager.agent`) defines a home-manager module the same
+  way but is not yet wired into any user/host.
 - `modules/users.nix` turns each `users.<name>` into
   `flake.modules.nixos.user-<name>` (system user + `home-manager.users.<name>`
   wired to `flake.modules.homeManager.default`, plus a per-user
@@ -41,9 +52,9 @@ module.
 - `modules/parts/` holds flake-level wiring: `systems.nix` (systems list +
   `perSystem` `pkgs` re-imported with the flake overlay and
   `allowUnfree = true` + `alejandra` formatter), `overlays.nix` (default
-  overlay: `llm-agents`, `nix-cachyos-kernel`, and `stable` from
-  `nixpkgs-stable`), `flake.nix` (imports `flake-parts`/`home-manager`
-  flakeModules).
+  overlay: `llm-agents` and `stable` from `nixpkgs-stable`;
+  `nix-cachyos-kernel` is present but currently commented out), `flake.nix`
+  (imports `flake-parts.flakeModules.modules` / `home-manager.flakeModules.home-manager`).
 
 ## Inputs & flake-parts conventions
 
@@ -77,8 +88,9 @@ module.
 - `pipe-operators` experimental feature is enabled in `nixos.nix` and used
   throughout (e.g. `modules/default.nix`, `modules/configurations.nix` use `|>`).
   The dev Nix must support `|>` (Determinate Nix 2.34+ does).
-- Supported systems: `x86_64-linux`, `aarch64-linux`. Only host currently:
-  `paprika` (WSL, x86_64-linux).
+- Supported systems: `x86_64-linux`, `aarch64-linux`. Hosts:
+  `paprika` (WSL, x86_64-linux, imports `graphics` + `wsl` + `user-tar`) and
+  `tin076` (work, x86_64-linux, imports `user-tar`).
 - `home.stateVersion` is derived from `osConfig.system.stateVersion` in
   `modules/home-manager.nix` — do not set it per-user.
 
