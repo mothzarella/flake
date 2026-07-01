@@ -43,7 +43,11 @@ module.
   `modules/hosts/paprika.nix`; `zed.nix` (`flake.modules.homeManager.zed`) is
   imported per-user (see `modules/users/tar.nix`). `agent.nix`
   (`flake.modules.homeManager.agent`) defines a home-manager module the same
-  way but is not yet wired into any user/host.
+  way but is not yet wired into any user/host. `impermanence.nix`
+  (`flake.modules.nixos.impermanence` + `flake.modules.homeManager.impermanence`)
+  wraps `inputs.impermanence` for a `/persist`-based root; it is not yet
+  imported by any host/user and requires a root filesystem already set up
+  for impermanence (tmpfs/subvolume) before use.
 - `modules/users.nix` turns each `users.<name>` into
   `flake.modules.nixos.user-<name>` (system user + `home-manager.users.<name>`
   wired to `flake.modules.homeManager.default`, plus a per-user

@@ -1,4 +1,6 @@
 {
+  persistence.homeManager.directories.modules = [".local/share/zed"];
+
   flake.modules.homeManager.zed = {
     lib,
     pkgs,
