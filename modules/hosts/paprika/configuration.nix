@@ -1,5 +1,5 @@
 {config, ...}: {
-  nixos.configurations.paprika = {
+  flake.nixos.configurations.paprika = {
     system = "x86_64-linux";
     module = {pkgs, ...}: {
       imports = with config.flake.modules.nixos; [

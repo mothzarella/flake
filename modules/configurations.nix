@@ -5,10 +5,14 @@ topLevel @ {
   withSystem,
   ...
 }: {
-  options.nixos.configurations = lib.mkOption {
+  options.flake.nixos.configurations = lib.mkOption {
     type = lib.types.lazyAttrsOf (
       lib.types.submodule {
         options = {
+          ephemeral = lib.mkEnableOption ''
+            Ephemeral root: auto-imports the impermanence NixOS module.
+            The host is still responsible for importing btrfs/disko separately.
+          '';
           system = lib.mkOption {
             type = lib.types.enum ["x86_64-linux" "aarch64-linux"];
             default = "x86_64-linux";
@@ -35,6 +39,8 @@ topLevel @ {
         name: {
           system,
           module,
+          ephemeral ? false,
+          ...
         }:
           withSystem system (
             {
@@ -59,11 +65,15 @@ topLevel @ {
                   ]
                   ++ lib.optional
                   (topLevel.config.flake.modules.nixos ? ${name})
-                  topLevel.config.flake.modules.nixos.${name};
+                  topLevel.config.flake.modules.nixos.${name}
+                  # Auto-import impermanence when ephemeral
+                  ++ lib.optional
+                  ephemeral
+                  topLevel.config.flake.modules.nixos.impermanence;
               }
           )
       )
-      config.nixos.configurations;
+      config.flake.nixos.configurations;
 
     checks =
       config.flake.nixosConfigurations

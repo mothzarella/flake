@@ -19,6 +19,12 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
     nixos-wsl.url = "github:nix-community/NixOS-WSL";
     impermanence.url = "github:nix-community/impermanence";
+    disko.url = "github:nix-community/disko";
+
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {flake-parts, ...} @ inputs:

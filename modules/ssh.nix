@@ -5,7 +5,7 @@
       openFirewall = true;
       settings = {
         PasswordAuthentication = true;
-        AllowUsers = [ "tar" ];
+        AllowUsers = ["tar"];
       };
     };
   };

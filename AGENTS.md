@@ -1,108 +1,82 @@
 # AGENTS.md
 
-NixOS system flake built on `flake-parts` and the
-[dendritic pattern](https://github.com/mightyiam/dendritic): every file under
-`modules/` is a **top-level flake-parts module**, not a NixOS/home-manager
-module.
+NixOS system flake. `flake-parts` + [dendritic pattern](https://github.com/mightyiam/dendritic): every `*.nix` under `modules/` is a **top-level flake-parts module**, not a NixOS/home-manager module.
 
 ## Architecture
 
-- `flake.nix` only declares inputs and hands off to
-  `flake-parts.lib.mkFlake { inherit inputs; } { imports = [./modules]; }`.
-- `modules/default.nix` auto-imports **every** `*.nix` file under `modules/`
-  (recursively) except `default.nix`, via `lib.fileset`. Do **not** maintain
-  import lists — dropping a new `.nix` file anywhere under `modules/` is
-  enough; file paths carry no meaning and can be renamed/moved freely.
-- Each file declares top-level flake attrs that lower-level evaluators consume:
-  - `flake.modules.nixos.<name>` — NixOS module (consumed by `modules/configurations.nix`).
-  - `flake.modules.homeManager.<name>` — home-manager module.
-  - `nixos.configurations.<host>` — a host (see `modules/hosts/`).
-  - `users.<name>` — a user spec (see `modules/users/`).
-  Writing a plain NixOS/home-manager module without one of these attrs silently
-  does nothing.
-- `modules/configurations.nix` is the top-level NixOS evaluator: for each
-  `nixos.configurations.<name>` it calls `withSystem` then
-  `nixpkgs.lib.nixosSystem`, always importing `flake.modules.nixos.default` plus
-  the host's `module`, and `flake.modules.nixos.<name>` if it exists. It pins
-  `system.stateVersion = "26.05"` and sets `networking.hostName = name`.
-- Several files merge into the shared `flake.modules.nixos.default`
-  (`nixos.nix`, `cache.nix`, `determinate.nix`, `security.nix`, `xdg.nix`,
-  `ssh.nix`) and `flake.modules.homeManager.default` (`git.nix`, `xdg.nix`).
-  Prefer merging cross-cutting settings into `default` over inventing a new
-  module name per concern (dendritic guidance: avoid lower-level name
-  proliferation).
-- `home-manager.nix` wires up home-manager itself: `flake.modules.nixos.home-manager`
-  imports the `home-manager` nixosModule and configures `home-manager.*`
-  options, while `flake.modules.homeManager.home-manager` enables
-  `programs.home-manager`, autoexpire, and derives `home.stateVersion` from
-  `osConfig.system.stateVersion`. Both are pulled in by `modules/users.nix`
-  for every user, on top of `flake.modules.homeManager.default`.
-- Opt-in (non-`default`) modules are wired explicitly where needed rather
-  than merged into `default`: `graphics.nix` (`flake.modules.nixos.graphics`)
-  and `wsl.nix` (`flake.modules.nixos.wsl`) are imported by
-  `modules/hosts/paprika.nix`; `zed.nix` (`flake.modules.homeManager.zed`) is
-  imported per-user (see `modules/users/tar.nix`). `agent.nix`
-  (`flake.modules.homeManager.agent`) defines a home-manager module the same
-  way but is not yet wired into any user/host. `impermanence.nix`
-  (`flake.modules.nixos.impermanence` + `flake.modules.homeManager.impermanence`)
-  wraps `inputs.impermanence` for a `/persist`-based root; it is not yet
-  imported by any host/user and requires a root filesystem already set up
-  for impermanence (tmpfs/subvolume) before use.
-- `modules/users.nix` turns each `users.<name>` into
-  `flake.modules.nixos.user-<name>` (system user + `home-manager.users.<name>`
-  wired to `flake.modules.homeManager.default`, plus a per-user
-  `flake.modules.homeManager.<name>` if present) and exposes a `userMeta`
-  option read by `modules/git.nix`.
-- `modules/parts/` holds flake-level wiring: `systems.nix` (systems list +
-  `perSystem` `pkgs` re-imported with the flake overlay and
-  `allowUnfree = true` + `alejandra` formatter), `overlays.nix` (default
-  overlay: `llm-agents` and `stable` from `nixpkgs-stable`;
-  `nix-cachyos-kernel` is present but currently commented out), `flake.nix`
-  (imports `flake-parts.flakeModules.modules` / `home-manager.flakeModules.home-manager`).
+- `flake.nix`: inputs → `flake-parts.lib.mkFlake { imports = [./modules]; }`.
+- `modules/default.nix`: auto-imports every `*.nix` under `modules/` (recursive, except `default.nix`) via `lib.fileset`. No import lists. File paths carry no meaning. **`git add` new files** — flakes only see tracked files.
+- Each file declares flake attrs. Plain NixOS/home-manager module without one = silently does nothing:
 
-## Inputs & flake-parts conventions
+  | Attribute | Purpose |
+  |---|---|
+  | `flake.modules.nixos.<name>` | NixOS module (consumed by `configurations.nix`) |
+  | `flake.modules.homeManager.<name>` | home-manager module |
+  | `flake.nixos.configurations.<host>` | Host definition |
+  | `flake.users.<name>` | User spec |
+  | `flake.persistence` | Cross-module persistence declarations (consumed by `impermanence.nix`) |
 
-- Two nixpkgs: `nixpkgs` (unstable) and `nixpkgs-stable` (nixos-26.05). Access
-  stable packages as `pkgs.stable.<pkg>` via the overlay; use `perSystem`
-  `pkgs`, not raw `nixpkgs.legacyPackages`.
-- Follow flake-parts best practices: make no assumption about which `inputs`
-  are present, never traverse/recurses into `inputs` (triggers fetches and is
-  fragile), put build/test work in `perSystem`, and namespace option names
-  (no overly general names like `programs` at top level).
-- `inputs.nixpkgs.follows` is used by `home-manager`; keep new inputs aligned
-  with `nixpkgs` unless a version split is intentional.
+### Module types
+
+- **`default`** (merge into `flake.modules.nixos.default` / `homeManager.default`, apply to all): `nixos.nix`, `cache.nix`, `determinate.nix`, `security.nix`, `ssh.nix`, `xdg.nix` (nixos); `git.nix`, `xdg.nix` (home-manager). Prefer merging into `default` over new module names.
+- **Opt-in** (imported explicitly by hosts/users):
+  - `boot.nix` → `flake.modules.nixos.boot`: systemd-boot + `efi.canTouchEfiVariables`.
+  - `secureboot.nix` → `flake.modules.nixos.secureboot`: UEFI Secure Boot via [Lanzaboote](https://github.com/nix-community/lanzaboote). Disables `systemd-boot.enable` (`mkForce false`), wraps systemd-boot with signed UKIs. Auto-generates + auto-enrolls keys on first boot (requires firmware Setup Mode). Persists `/var/lib/sbctl` via `flake.persistence`.
+  - `btrfs.nix` → `flake.modules.nixos.btrfs`: BTRFS rollback for ephemeral root.
+  - `graphics.nix`, `wsl.nix`, `networking/` (`dns.nix`, `networkmanager.nix`).
+  - `agent.nix`, `zed.nix` (home-manager).
+
+### Key evaluators
+
+- **`configurations.nix`**: NixOS evaluator. Each `flake.nixos.configurations.<name>` → `withSystem` → `nixpkgs.lib.nixosSystem`. Always imports `default` + host `module` + `flake.modules.nixos.<name>` if exists (hostname match, e.g. `disko.nix`). Pins `system.stateVersion = "26.05"`, sets `networking.hostName`.
+- **`users.nix`**: `flake.users.<name>` → `flake.modules.nixos.user-<name>`. Creates user, wires `home-manager.users.<name>` to `homeManager.default` + `home-manager` + optional per-user `homeManager.<name>`. Exposes `userMeta` (read by `git.nix`).
+- **`home-manager.nix`**: imports home-manager nixosModule; derives `home.stateVersion` from `osConfig.system.stateVersion`. Pulled in by `users.nix` for every user.
+- **`impermanence.nix`**: wraps `inputs.impermanence` for `/persist`-based root. Defines `flake.persistence` option (`nixos.directories`, `homeManager.directories`) so other modules declare what to persist. Auto-imported when `ephemeral = true`. BTRFS rollback (`btrfs`) is **separate** — host imports explicitly.
+- **`modules/parts/`**: flake-level wiring — systems, perSystem pkgs (overlays + `allowUnfree`), alejandra formatter.
+
+## Hosts
+
+| Host | System | Ephemeral | Notes |
+|---|---|---|---|
+| `cinnamon` | x86_64-linux | yes | Baremetal. disko LUKS + BTRFS (`root`/`nix`/`persist`). boot + btrfs + secureboot. |
+| `paprika` | x86_64-linux | no | NixOS-WSL + graphics. |
+
+## Inputs
+
+- `nixpkgs` (unstable), `nixpkgs-stable` (nixos-26.05). Stable via `pkgs.stable.<pkg>` overlay.
+- `lanzaboote`: Secure Boot. `inputs.nixpkgs.follows = "nixpkgs"`.
+- `home-manager`, `impermanence`, `disko`, `determinate`, `nixos-wsl`, `nix-cachyos-kernel`, `llm-agents`.
+- Use `perSystem` `pkgs`, never raw `nixpkgs.legacyPackages`.
+- Keep new inputs `follows = "nixpkgs"` unless version split intentional.
+- `home.stateVersion` derived from `osConfig.system.stateVersion` — never set per-user.
 
 ## Commands
 
-- Format: `nix fmt` (alejandra, set in `modules/parts/systems.nix`). This is
-  the only formatter — there is no treefmt, pre-commit, justfile, or direnv.
-- Verify the flake: `nix flake check` — builds every `nixosConfigurations.*`
-  toplevel as a check (`configurations:nixos:<host>`), so it is **expensive**
-  (full system build), not a cheap lint.
-- Build a host without switching:
-  `nix build .#nixosConfigurations.paprika.config.system.build.toplevel`
-- Apply a host: `nixos-rebuild switch --flake .#paprika`
-- Update lockfile: `nix flake update` (single input: `nix flake update <input>`).
+| Command | Purpose |
+|---|---|
+| `nix fmt` | Format (alejandra) |
+| `nix flake check` | Build every toplevel (**expensive**, not a lint) |
+| `nix build .#nixosConfigurations.<host>.config.system.build.toplevel` | Build without switching |
+| `nixos-rebuild switch --flake .#<host>` | Apply |
+| `nix flake update [<input>]` | Update lockfile |
 
 ## Environment
 
-- Nix is **Determinate Nix** (`nix --version` shows "Determinate Nix";
-  `modules/determinate.nix` imports the determinate nixosModule). Do not use
-  vanilla nix installer/upgrade commands.
-- `pipe-operators` experimental feature is enabled in `nixos.nix` and used
-  throughout (e.g. `modules/default.nix`, `modules/configurations.nix` use `|>`).
-  The dev Nix must support `|>` (Determinate Nix 2.34+ does).
-- Supported systems: `x86_64-linux`, `aarch64-linux`. Hosts:
-  `paprika` (WSL, x86_64-linux, imports `graphics` + `wsl` + `user-tar`) and
-  `tin076` (work, x86_64-linux, imports `user-tar`).
-- `home.stateVersion` is derived from `osConfig.system.stateVersion` in
-  `modules/home-manager.nix` — do not set it per-user.
+- **Determinate Nix** — no vanilla nix installer/upgrade commands.
+- `pipe-operators` experimental feature enabled — `|>` used throughout.
+- Systems: `x86_64-linux`, `aarch64-linux`.
+- Conventional Commits (`feat:`/`fix:`/`refactor:`); default branch `main`.
 
 ## Conventions
 
-- Conventional Commits (`feat:`, `fix:`, `refactor:`); default branch `main`.
-- Add a host: create `modules/hosts/<name>.nix` setting
-  `nixos.configurations.<name> = { system; module = {...}; };`.
-- Add a user: create `modules/users/<name>.nix` setting
-  `users.<name> = { email; sudo; groups; module; };` and optionally
-  `flake.modules.homeManager.<name>`.
+- **Add host**: `modules/hosts/<name>/configuration.nix`:
+  ```nix
+  flake.nixos.configurations.<name> = { system; ephemeral ? false; module = {...}; };
+  ```
+  Optional `modules/hosts/<name>/disko.nix` → `flake.modules.nixos.<name>` (auto-imported by hostname match).
+- **Add user**: `modules/users/<name>.nix`:
+  ```nix
+  flake.users.<name> = { email; sudo; groups; module; };
+  ```
+  Optional `flake.modules.homeManager.<name>` for per-user home-manager config.
+- **Declare persistence**: set `flake.persistence.nixos.directories` or `flake.persistence.homeManager.directories.<user>` from any module. Consumed by `impermanence.nix` on ephemeral hosts.

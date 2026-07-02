@@ -3,7 +3,7 @@ topLevel @ {
   lib,
   ...
 }: {
-  options.persistence = {
+  options.flake.persistence = {
     nixos.directories = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [];
@@ -35,7 +35,7 @@ topLevel @ {
           "/var/lib/nixos"
           "/var/lib/systemd/coredump"
         ]
-        ++ topLevel.config.persistence.nixos.directories;
+        ++ topLevel.config.flake.persistence.nixos.directories;
       files = [
         "/etc/machine-id"
       ];
@@ -44,9 +44,9 @@ topLevel @ {
 
   config.flake.modules.homeManager.impermanence = {config, ...}: let
     username = config.home.username;
-    persist = topLevel.config.persistence.homeManager.directories;
+    persist = topLevel.config.flake.persistence.homeManager.directories;
   in {
-    home.persistence."/persist/home/${username}" = {
+    home.persistence."/persist" = {
       directories =
         [
           ".ssh"

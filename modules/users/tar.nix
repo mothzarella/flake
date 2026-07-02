@@ -1,8 +1,8 @@
 {config, ...}: {
-  users.tar = {
+  flake.users.tar = {
     email = "git@mothzarella.dev";
     sudo = true;
-    groups = ["docker" "video"];
+    groups = ["docker" "networkmanager" "video"];
     module = {...}: {
       home-manager.users.tar = {pkgs, ...}: {
         imports = with config.flake.modules.homeManager; [
