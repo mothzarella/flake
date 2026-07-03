@@ -11,6 +11,11 @@ in {
         nixos.user-tar
       ];
 
+      networking.networkmanager.enable = true;
+
+      # Kernel
+      boot.initrd.availableKernelModules = ["xhci_pci" "nvme"];
+      boot.kernelModules = ["kvm-intel"];
       boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
     };
   };
