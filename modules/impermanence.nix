@@ -27,13 +27,15 @@ topLevel @ {
   config.flake.modules.nixos.impermanence = {
     imports = [inputs.impermanence.nixosModules.impermanence];
 
-    environment.persistence."/persist" = {
+    environment.persistence."/persistent" = {
       hideMounts = true;
       directories =
         [
           "/var/log"
+          "/var/lib/bluetooth"
           "/var/lib/nixos"
           "/var/lib/systemd/coredump"
+          "/etc/NetworkManager/system-connections"
         ]
         ++ topLevel.config.flake.persistence.nixos.directories;
       files = [
@@ -46,11 +48,17 @@ topLevel @ {
     username = config.home.username;
     persist = topLevel.config.flake.persistence.homeManager.directories;
   in {
-    home.persistence."/persist" = {
+    home.persistence."/persistent" = {
       directories =
         [
-          ".ssh"
-          ".gnupg"
+          {
+            directory = ".gnupg";
+            mode = "0700";
+          }
+          {
+            directory = ".ssh";
+            mode = "0700";
+          }
         ]
         ++ (persist.modules or [])
         ++ (persist.${username} or []);

@@ -16,20 +16,17 @@ NixOS system flake. `flake-parts` + [dendritic pattern](https://github.com/might
   | `flake.users.<name>` | User spec |
   | `flake.persistence` | Cross-module persistence declarations (consumed by `impermanence.nix`) |
 
-### Module types
-
 - **`default`** (merge into `flake.modules.nixos.default` / `homeManager.default`, apply to all): `nixos.nix`, `cache.nix`, `determinate.nix`, `security.nix`, `ssh.nix`, `xdg.nix` (nixos); `git.nix`, `xdg.nix` (home-manager). Prefer merging into `default` over new module names.
 - **Opt-in** (imported explicitly by hosts/users):
-  - `boot.nix` → `flake.modules.nixos.boot`: systemd-boot + `efi.canTouchEfiVariables`.
-  - `secureboot.nix` → `flake.modules.nixos.secureboot`: UEFI Secure Boot via [Lanzaboote](https://github.com/nix-community/lanzaboote). Disables `systemd-boot.enable` (`mkForce false`), wraps systemd-boot with signed UKIs. Auto-generates + auto-enrolls keys on first boot (requires firmware Setup Mode). Persists `/var/lib/sbctl` via `flake.persistence`.
-  - `btrfs.nix` → `flake.modules.nixos.btrfs`: BTRFS rollback for ephemeral root.
-  - `graphics.nix`, `wsl.nix`, `networking/` (`dns.nix`, `networkmanager.nix`).
-  - `agent.nix`, `zed.nix` (home-manager).
+  - `boot.nix` → systemd-boot + `efi.canTouchEfiVariables`.
+  - `secureboot.nix` → UEFI Secure Boot via [Lanzaboote](https://github.com/nix-community/lanzaboote): wraps systemd-boot with signed UKIs (`systemd-boot.enable = mkForce false`), auto-generates + auto-enrolls keys on first boot (requires firmware Setup Mode). Persists `/var/lib/sbctl`.
+  - `btrfs.nix` → initrd rollback for ephemeral root. Mounts `cryptroot` top-level (`subvol=/`), moves `root` subvolume to `old_roots/<timestamp>`, prunes entries >30 days, creates fresh empty `root` (NixOS repopulates `/` from `/nix` closure). Self-contained — no `root-blank` prerequisite. Requires LUKS mapper `cryptroot` (host `disko.nix`); `subvol=root` mount expected on `/`.
+  - `graphics.nix`, `wsl.nix`, `networking/` (`dns.nix`, `networkmanager.nix`); `agent.nix`, `zed.nix` (home-manager).
 
 ### Key evaluators
 
-- **`configurations.nix`**: NixOS evaluator. Each `flake.nixos.configurations.<name>` → `withSystem` → `nixpkgs.lib.nixosSystem`. Always imports `default` + host `module` + `flake.modules.nixos.<name>` if exists (hostname match, e.g. `disko.nix`). Pins `system.stateVersion = "26.05"`, sets `networking.hostName`.
-- **`users.nix`**: `flake.users.<name>` → `flake.modules.nixos.user-<name>`. Creates user, wires `home-manager.users.<name>` to `homeManager.default` + `home-manager` + optional per-user `homeManager.<name>`. Exposes `userMeta` (read by `git.nix`).
+- **`configurations.nix`**: `flake.nixos.configurations.<name>` → `withSystem` → `nixpkgs.lib.nixosSystem`. Imports `default` + host `module` + `flake.modules.nixos.<name>` if exists (hostname match, e.g. `disko.nix`). Pins `system.stateVersion = "26.05"`, sets `networking.hostName`.
+- **`users.nix`**: `flake.users.<name>` → `flake.modules.nixos.user-<name>`. Wires `home-manager.users.<name>` to `homeManager.default` + `home-manager` + optional per-user `homeManager.<name>`. Exposes `userMeta` (read by `git.nix`).
 - **`home-manager.nix`**: imports home-manager nixosModule; derives `home.stateVersion` from `osConfig.system.stateVersion`. Pulled in by `users.nix` for every user.
 - **`impermanence.nix`**: wraps `inputs.impermanence` for `/persist`-based root. Defines `flake.persistence` option (`nixos.directories`, `homeManager.directories`) so other modules declare what to persist. Auto-imported when `ephemeral = true`. BTRFS rollback (`btrfs`) is **separate** — host imports explicitly.
 - **`modules/parts/`**: flake-level wiring — systems, perSystem pkgs (overlays + `allowUnfree`), alejandra formatter.
@@ -38,16 +35,15 @@ NixOS system flake. `flake-parts` + [dendritic pattern](https://github.com/might
 
 | Host | System | Ephemeral | Notes |
 |---|---|---|---|
-| `cinnamon` | x86_64-linux | yes | Baremetal. disko LUKS + BTRFS (`root`/`nix`/`persist`). boot + btrfs + secureboot. |
+| `cinnamon` | x86_64-linux | yes | Baremetal. disko GPT: ESP (1G, vfat, `/boot`, `umask=0077`) + swap (4G, `resumeDevice`) + root (LUKS `cryptroot` + BTRFS, subvolumes `root`->`/`, `persistent`->`/persistent`, `nix`->`/nix`). boot + btrfs + secureboot. |
 | `paprika` | x86_64-linux | no | NixOS-WSL + graphics. |
+
+> **Open inconsistency**: `disko.nix`/`btrfs.nix` mount `/persistent`, while `impermanence.nix` bind-mounts from `/persist`. Pick one and align all three modules.
 
 ## Inputs
 
-- `nixpkgs` (unstable), `nixpkgs-stable` (nixos-26.05). Stable via `pkgs.stable.<pkg>` overlay.
-- `lanzaboote`: Secure Boot. `inputs.nixpkgs.follows = "nixpkgs"`.
-- `home-manager`, `impermanence`, `disko`, `determinate`, `nixos-wsl`, `nix-cachyos-kernel`, `llm-agents`.
-- Use `perSystem` `pkgs`, never raw `nixpkgs.legacyPackages`.
-- Keep new inputs `follows = "nixpkgs"` unless version split intentional.
+- `nixpkgs` (unstable), `nixpkgs-stable` (nixos-26.05; via `pkgs.stable.<pkg>` overlay). Use `perSystem` `pkgs`, never raw `nixpkgs.legacyPackages`.
+- `lanzaboote` (Secure Boot, `follows = "nixpkgs"`), `home-manager`, `impermanence`, `disko`, `determinate`, `nixos-wsl`, `nix-cachyos-kernel`, `llm-agents`. Keep new inputs `follows = "nixpkgs"` unless version split intentional.
 - `home.stateVersion` derived from `osConfig.system.stateVersion` — never set per-user.
 
 ## Commands

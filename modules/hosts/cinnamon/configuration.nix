@@ -5,18 +5,25 @@ in {
     system = "x86_64-linux";
     ephemeral = true;
     module = {pkgs, ...}: {
-      imports = [
-        nixos.btrfs
-        nixos.secureboot
-        nixos.user-tar
+      imports = with nixos; [
+        btrfs
+        graphics
+        secureboot
+
+        user-tar
       ];
 
-      networking.networkmanager.enable = true;
-
       # Kernel
+      boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
+      boot.blacklistedKernelModules = ["nouveau"];
       boot.initrd.availableKernelModules = ["xhci_pci" "nvme"];
       boot.kernelModules = ["kvm-intel"];
-      boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
+
+      # Networking
+      networking.networkmanager.enable = true;
+
+      # Hardware
+      hardware.cpu.intel.updateMicrocode = true;
     };
   };
 }
