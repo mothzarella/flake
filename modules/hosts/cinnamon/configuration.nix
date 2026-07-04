@@ -1,21 +1,25 @@
-topLevel: let
+topLevel @ {inputs, ...}: let
   inherit (topLevel.config.flake.modules) nixos;
 in {
   flake.nixos.configurations.cinnamon = {
     system = "x86_64-linux";
     ephemeral = true;
     module = {pkgs, ...}: {
-      imports = with nixos; [
-        btrfs
-        graphics
-        secureboot
+      imports = [
+        inputs.hardware.nixosModules.common-pc-laptop-ssd
 
-        user-tar
+        nixos.btrfs
+        nixos.secureboot
+        nixos.graphics
+        nixos.nvidia
+        nixos.power
+        nixos.gaming
+        nixos.gdm
+
+        nixos.user-tar
       ];
 
       # Kernel
-      boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
-      boot.blacklistedKernelModules = ["nouveau"];
       boot.initrd.availableKernelModules = ["xhci_pci" "nvme"];
       boot.kernelModules = ["kvm-intel"];
 
