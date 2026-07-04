@@ -10,6 +10,8 @@ in {
         "docker"
         "networkmanager"
         "video"
+        "seatd"
+        "render"
       ];
       module = {
         home-manager.users.tar = {pkgs, ...}: {
