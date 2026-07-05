@@ -10,6 +10,7 @@ in {
 
     hardware.nvidia = {
       open = true;
+      modesetting.enable = true;
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };
   };

@@ -14,6 +14,7 @@ in {
         nixos.power
         nixos.gaming
         nixos.gdm
+        nixos.niri
 
         nixos.user-tar
       ];
@@ -26,7 +27,6 @@ in {
       hardware.cpu.intel.updateMicrocode = true;
       hardware.enableRedistributableFirmware = true;
 
-      programs.steam.gamescopeSession.args = ["--prefer-vk-device" "8086:a78b"];
       hardware.nvidia.prime = {
         # Verify with: lspci | grep -E "VGA|3D"
         intelBusId = "PCI:0:2:0";
