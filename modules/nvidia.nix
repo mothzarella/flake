@@ -9,12 +9,6 @@ in {
     ];
 
     hardware.nvidia = {
-      prime = {
-        # Verify with: lspci | grep -E "VGA|3D"
-        intelBusId = "PCI:0:2:0";
-        nvidiaBusId = "PCI:1:0:0";
-      };
-
       open = true;
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };

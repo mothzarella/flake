@@ -8,8 +8,6 @@
       enable = true;
       enable32Bit = true;
 
-      # Intel UHD 770 (Gen 12 Xe): VA-API via intel-media-driver (libva-vdpau-driver is VDPAU/NVIDIA-legacy).
-      # Vulkan/OpenGL Intel ICDs ship with `mesa`, auto-available via hardware.graphics.enable.
       extraPackages = with pkgs; [
         intel-media-driver
       ];

@@ -10,7 +10,6 @@ in {
 
         nixos.btrfs
         nixos.secureboot
-        nixos.graphics
         nixos.nvidia
         nixos.power
         nixos.gaming
@@ -19,15 +18,20 @@ in {
         nixos.user-tar
       ];
 
-      # Kernel
       boot.initrd.availableKernelModules = ["xhci_pci" "nvme"];
       boot.kernelModules = ["kvm-intel"];
 
-      # Networking
       networking.networkmanager.enable = true;
 
-      # Hardware
       hardware.cpu.intel.updateMicrocode = true;
+      hardware.enableRedistributableFirmware = true;
+
+      programs.steam.gamescopeSession.args = ["--prefer-vk-device" "8086:a78b"];
+      hardware.nvidia.prime = {
+        # Verify with: lspci | grep -E "VGA|3D"
+        intelBusId = "PCI:0:2:0";
+        nvidiaBusId = "PCI:1:0:0";
+      };
     };
   };
 }
