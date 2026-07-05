@@ -5,7 +5,7 @@
 }: {
   flake.overlays.default = lib.composeManyExtensions [
     inputs.llm-agents.overlays.default
-    inputs.chaotic.overlays.cache-friendly
+    inputs.chaotic.overlays.default
     # inputs.nix-cachyos-kernel.overlays.pinned
 
     (final: prev: {
