@@ -22,6 +22,7 @@ NixOS system flake. `flake-parts` + [dendritic pattern](https://github.com/might
   - `secureboot.nix` → UEFI Secure Boot via [Lanzaboote](https://github.com/nix-community/lanzaboote): wraps systemd-boot with signed UKIs (`systemd-boot.enable = mkForce false`), auto-generates + auto-enrolls keys on first boot (requires firmware Setup Mode). Persists `/var/lib/sbctl`.
   - `btrfs.nix` → initrd rollback for ephemeral root. Mounts `cryptroot` top-level (`subvol=/`), moves `root` subvolume to `old_roots/<timestamp>`, prunes entries >30 days, creates fresh empty `root` (NixOS repopulates `/` from `/nix` closure). Self-contained — no `root-blank` prerequisite. Requires LUKS mapper `cryptroot` (host `disko.nix`); `subvol=root` mount expected on `/`.
   - `graphics.nix`, `wsl.nix`, `networking/` (`dns.nix`, `networkmanager.nix`); `agent.nix`, `zed.nix` (home-manager).
+- **`gaming`** (imported explicitly by hosts): `gaming/cachyos.nix` sets `boot.kernelPackages = pkgs.linuxPackages_cachyos`, `hardware.nvidia.package = pkgs.nvidia_cachyos`, `services.scx.enable = true`; `gaming/gamescope.nix` sets `programs.gamescope.package = pkgs.gamescope_git`; `gaming/steam.nix` sets `extraCompatPackages = [pkgs.proton-cachyos pkgs.proton-ge-bin]` (cachyos + GE fallback). Bundle: import `nixos.gaming` per-host.
 
 ### Key evaluators
 
@@ -43,8 +44,23 @@ NixOS system flake. `flake-parts` + [dendritic pattern](https://github.com/might
 ## Inputs
 
 - `nixpkgs` (unstable), `nixpkgs-stable` (nixos-26.05; via `pkgs.stable.<pkg>` overlay). Use `perSystem` `pkgs`, never raw `nixpkgs.legacyPackages`.
-- `lanzaboote` (Secure Boot, `follows = "nixpkgs"`), `home-manager`, `impermanence`, `disko`, `determinate`, `nixos-wsl`, `nix-cachyos-kernel`, `llm-agents`. Keep new inputs `follows = "nixpkgs"` unless version split intentional.
+- `lanzaboote` (Secure Boot, `follows = "nixpkgs"`), `home-manager`, `impermanence`, `disko`, `determinate`, `nixos-wsl`, `nix-cachyos-kernel`, `llm-agents`, `chaotic` (Chaotic-Nyx, `github:chaotic-cx/nyx/nyxpkgs-unstable`; vendored `nixpkgs` â **no `follows`**). Keep new inputs `follows = "nixpkgs"` unless version split intentional.
 - `home.stateVersion` derived from `osConfig.system.stateVersion` — never set per-user.
+
+## Chaotic-Nyx wiring
+
+**Overlay-only** (no NixOS module imported). `modules/parts/overlays.nix` adds `inputs.chaotic.overlays.default` to `flake.overlays.default` â nyx packages (`linuxPackages_cachyos`, `gamescope_git`, `proton-cachyos`, `nvidia_cachyos`, `mesa_git`, etc.) available in every host's `pkgs`.
+
+Cache: `cache.nix` adds `https://nyx-cache.chaotic.cx/` + key `nyx-cache.chaotic.cx:dJxTrgMC3V3cFfyIiBQDQorG6k1LsqurH/srpMSq7qk=` to `nix.settings.extra-substituters`/`extra-trusted-public-keys`.
+
+**Cache hit invariant**: use `overlays.default` (builds nyx on **chaotic's nixpkgs**), NOT `overlays.cache-friendly` (builds nyx on user nixpkgs â hash diverges â cache miss â builds from source). Verify with:
+```sh
+nix eval --raw .#nixosConfigurations.<host>.config.boot.kernelPackages.kernel.outPath
+nix eval --raw github:chaotic-cx/nyx/nyxpkgs-unstable#linuxPackages_cachyos.kernel.outPath
+# must match
+```
+
+**mesa_git**: `chaotic.mesa-git.enable` breaks NVIDIA libgbm â do NOT enable on Optimus/Prime hosts (e.g. `cinnamon`). Only AMD-only.
 
 ## Commands
 
