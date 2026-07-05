@@ -62,6 +62,7 @@ topLevel @ {
 
                     topLevel.config.flake.modules.nixos.default
                     module
+                    inputs.chaotic.nixosModules.default
                   ]
                   ++ lib.optional
                   (topLevel.config.flake.modules.nixos ? ${name})

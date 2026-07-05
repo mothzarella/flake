@@ -1,7 +1,11 @@
 topLevel @ {inputs, ...}: let
   inherit (topLevel.config.flake.modules) nixos;
 in {
-  flake.modules.nixos.nvidia = {config, ...}: {
+  flake.modules.nixos.nvidia = {
+    config,
+    lib,
+    ...
+  }: {
     imports = [
       # https://github.com/NixOS/nixos-hardware/blob/master/common/gpu/nvidia/prime.nix
       inputs.hardware.nixosModules.common-gpu-nvidia
@@ -11,7 +15,7 @@ in {
     hardware.nvidia = {
       open = true;
       modesetting.enable = true;
-      package = config.boot.kernelPackages.nvidiaPackages.latest;
+      package = lib.mkDefault config.boot.kernelPackages.nvidiaPackages.latest;
     };
   };
 }

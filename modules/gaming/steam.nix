@@ -13,7 +13,7 @@ topLevel @ {...}: {
         dedicatedServer.openFirewall = true;
         localNetworkGameTransfers.openFirewall = true;
 
-        extraCompatPackages = [pkgs.proton-ge-bin];
+        extraCompatPackages = [pkgs.proton-cachyos pkgs.proton-ge-bin];
 
         package = pkgs.steam.override {
           extraEnv = {
