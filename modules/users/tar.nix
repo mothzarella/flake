@@ -16,10 +16,13 @@ in {
       module = {
         home-manager.users.tar = {pkgs, ...}: {
           imports = with homeManager; [
+            browsers
+            discord
             zed
           ];
 
           programs.neovim.enable = true;
+          programs.fastfetch.enable = true;
           home.packages = with pkgs; [
             llm-agents.opencode # TODO: remove after `pi` setup is complete
             llm-agents.junie

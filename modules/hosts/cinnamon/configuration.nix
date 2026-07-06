@@ -13,6 +13,7 @@ in {
         nixos.nvidia
         nixos.power
         nixos.gaming
+        nixos.networking
         nixos.gdm
         nixos.niri
 
@@ -22,8 +23,6 @@ in {
       boot.initrd.availableKernelModules = ["xhci_pci" "nvme"];
       boot.kernelModules = ["kvm-intel"];
 
-      networking.networkmanager.enable = true;
-
       hardware.cpu.intel.updateMicrocode = true;
       hardware.enableRedistributableFirmware = true;
 
@@ -32,6 +31,15 @@ in {
         intelBusId = "PCI:0:2:0";
         nvidiaBusId = "PCI:1:0:0";
       };
+
+      programs.gamescope.args = [
+        "-W"
+        "1920"
+        "-H"
+        "1080"
+        "-r"
+        "165"
+      ];
     };
   };
 }

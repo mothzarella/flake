@@ -3,7 +3,6 @@ topLevel @ {...}: {
     persistence.homeManager.directories.modules = [
       ".local/share/Steam"
       ".steam"
-      ".config/gamescope"
     ];
     modules.nixos.gaming = {
       pkgs,
@@ -12,13 +11,12 @@ topLevel @ {...}: {
     }: {
       programs.steam = {
         enable = true;
-        package = pkgs.steam.override {
-          withPrimus = true;
-          extraPkgs = with pkgs; [
-            bumblebee
-            glxinfo
-          ];
-        };
+        # package = pkgs.steam.override {
+        #   extraPkgs = with pkgs; [
+        #     bumblebee
+        #     glxinfo
+        #   ];
+        # };
 
         remotePlay.openFirewall = true;
         dedicatedServer.openFirewall = true;

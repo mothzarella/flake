@@ -12,13 +12,12 @@
     };
 
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
-
-    # https://github.com/CachyOS/linux-cachyos#nixos
-    # nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
     llm-agents.url = "github:numtide/llm-agents.nix";
+
     nixos-wsl.url = "github:nix-community/NixOS-WSL";
+
     impermanence.url = "github:nix-community/impermanence";
     disko.url = "github:nix-community/disko";
 

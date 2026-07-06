@@ -4,7 +4,7 @@
       ".local/share/qutebrowser"
       ".local/state/qutebrowser"
     ];
-    modules.homeManager.browser = {
+    modules.homeManager.browsers = {
       programs.qutebrowser = {
         enable = true;
       };

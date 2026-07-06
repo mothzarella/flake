@@ -8,6 +8,11 @@
       enableWsi = true;
       # https://github.com/NixOS/nixpkgs/issues/351516
       capSysNice = false;
+      args = [
+        "--fullscreen"
+        "--mangoapp"
+        "--force-grab-cursor"
+      ];
     };
   };
 }
