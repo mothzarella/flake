@@ -15,12 +15,13 @@
           "terraform"
           "toml"
           "jetbrains-new-ui-icons"
+          "vesper"
         ];
         userSettings = {
           vim_mode = true;
 
           # Theme
-          theme = "Ayu Dark";
+          theme = "Vesper";
           icon_theme = "JetBrains New UI Icons (Dark)";
           ui_font_family = "JetBrains Mono";
           buffer_font_family = "JetBrains Mono";

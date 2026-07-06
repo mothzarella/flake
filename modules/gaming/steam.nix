@@ -5,23 +5,29 @@ topLevel @ {...}: {
       ".steam"
       ".config/gamescope"
     ];
-    modules.nixos.gaming = {pkgs, ...}: {
+    modules.nixos.gaming = {
+      pkgs,
+      lib,
+      ...
+    }: {
       programs.steam = {
         enable = true;
+        package = pkgs.steam.override {
+          withPrimus = true;
+          extraPkgs = with pkgs; [
+            bumblebee
+            glxinfo
+          ];
+        };
 
         remotePlay.openFirewall = true;
         dedicatedServer.openFirewall = true;
         localNetworkGameTransfers.openFirewall = true;
 
-        extraCompatPackages = [pkgs.proton-cachyos pkgs.proton-ge-bin];
-
-        package = pkgs.steam.override {
-          extraEnv = {
-            __NV_PRIME_RENDER_OFFLOAD = "1";
-            __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-            __VK_LAYER_NV_optimus = "NVIDIA_only";
-          };
-        };
+        extraCompatPackages = with pkgs; [
+          proton-cachyos
+          proton-ge-bin
+        ];
       };
 
       # https://github.com/fufexan/nix-gaming/blob/master/modules/platformOptimizations.nix
