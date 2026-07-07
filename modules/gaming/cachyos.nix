@@ -1,9 +1,5 @@
 {
-  flake.modules.nixos.gaming = {
-    lib,
-    pkgs,
-    ...
-  }: {
+  flake.modules.nixos.gaming = {pkgs, ...}: {
     boot.kernelPackages = pkgs.linuxPackages_cachyos;
     services.scx.enable = true;
 

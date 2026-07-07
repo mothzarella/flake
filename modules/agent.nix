@@ -1,9 +1,5 @@
 {
-  flake.modules.homeManager.agent = {
-    config,
-    pkgs,
-    ...
-  }: let
+  flake.modules.homeManager.agent = {pkgs, ...}: let
     piPath = ".pi/agent";
     fetchSkill = {
       owner,

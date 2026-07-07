@@ -6,31 +6,30 @@
       alejandra
     ];
 
-    nix.channel.enable = false;
-
-    nix.gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 14d";
-    };
-
-    nix.settings.experimental-features = [
-      "nix-command"
-      "flakes"
-      "pipe-operators"
-    ];
-
     nix = {
+      channel.enable = false;
+
+      gc = {
+        automatic = true;
+        dates = "weekly";
+        options = "--delete-older-than 14d";
+      };
+
       optimise.automatic = true;
+
       settings = {
+        experimental-features = [
+          "nix-command"
+          "flakes"
+          "pipe-operators"
+        ];
         download-buffer-size = 1024 * 1024 * 1024;
         auto-optimise-store = true;
+        trusted-users = [
+          "root"
+          "@wheel"
+        ];
       };
     };
-
-    nix.settings.trusted-users = [
-      "root"
-      "@wheel"
-    ];
   };
 }

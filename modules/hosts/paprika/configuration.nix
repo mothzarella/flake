@@ -1,11 +1,12 @@
-{config, ...}: {
+topLevel: let
+  inherit (topLevel.config.flake.modules) nixos;
+in {
   flake.nixos.configurations.paprika = {
     system = "x86_64-linux";
+    profiles = ["wsl"];
     module = {pkgs, ...}: {
-      imports = with config.flake.modules.nixos; [
-        graphics
-        wsl
-        user-tar
+      imports = [
+        nixos.user-tar
       ];
 
       wsl = {

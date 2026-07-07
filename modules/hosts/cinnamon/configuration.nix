@@ -4,18 +4,10 @@ in {
   flake.nixos.configurations.cinnamon = {
     system = "x86_64-linux";
     ephemeral = true;
-    module = {pkgs, ...}: {
+    profiles = ["bare-metal"];
+    module = {...}: {
       imports = [
         inputs.hardware.nixosModules.common-pc-laptop-ssd
-
-        nixos.btrfs
-        nixos.secureboot
-        nixos.nvidia
-        nixos.power
-        nixos.gaming
-        nixos.networking
-        nixos.gdm
-        nixos.niri
 
         nixos.user-tar
       ];

@@ -9,8 +9,6 @@
       };
     };
 
-    services.gnome.gnome-keyring.enable = true;
-
     programs.niri = {
       enable = true;
       package = pkgs.niri;

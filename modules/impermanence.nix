@@ -1,32 +1,34 @@
-topLevel @ {
+{
   inputs,
   lib,
   ...
-}: {
-  options.flake.persistence = {
-    nixos.directories = lib.mkOption {
+}: let
+  # `persistence.{directories,files}` lives on `default` (always imported on
+  # every host/user), so the option exists everywhere — no option-not-found on
+  # non-ephemeral hosts. Any module may set it; the module system scopes it to
+  # whoever imports that module. Only `impermanence` consumes it to emit
+  # `environment.persistence`/`home.persistence`, and only on ephemeral hosts.
+  persistenceOptions = {
+    directories = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [];
-      description = ''
-        Absolute directories to persist under `/persist` at the system
-        (NixOS) level, in addition to the impermanence module's defaults.
-      '';
     };
-
-    homeManager.directories = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.listOf lib.types.str);
-      default = {};
-      description = ''
-        Home-relative directories to persist under `/persist` when the
-        impermanence home-manager module is enabled for a user, keyed by
-        username, or `all` to apply to every such user.
-      '';
+    files = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
     };
   };
+in {
+  config.flake.modules.nixos.default = {
+    options.persistence = persistenceOptions;
+  };
 
-  config.flake.modules.nixos.impermanence = {
+  config.flake.modules.homeManager.default = {
+    options.persistence = persistenceOptions;
+  };
+
+  config.flake.modules.nixos.impermanence = {config, ...}: {
     imports = [inputs.impermanence.nixosModules.impermanence];
-
     environment.persistence."/persistent" = {
       hideMounts = true;
       directories =
@@ -37,17 +39,12 @@ topLevel @ {
           "/var/lib/systemd/coredump"
           "/etc/NetworkManager/system-connections"
         ]
-        ++ topLevel.config.flake.persistence.nixos.directories;
-      files = [
-        "/etc/machine-id"
-      ];
+        ++ config.persistence.directories;
+      files = ["/etc/machine-id"] ++ config.persistence.files;
     };
   };
 
-  config.flake.modules.homeManager.impermanence = {config, ...}: let
-    username = config.home.username;
-    persist = topLevel.config.flake.persistence.homeManager.directories;
-  in {
+  config.flake.modules.homeManager.impermanence = {config, ...}: {
     home.persistence."/persistent" = {
       directories =
         [
@@ -60,8 +57,8 @@ topLevel @ {
             mode = "0700";
           }
         ]
-        ++ (persist.modules or [])
-        ++ (persist.${username} or []);
+        ++ config.persistence.directories;
+      files = config.persistence.files;
     };
   };
 }

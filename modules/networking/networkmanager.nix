@@ -1,5 +1,8 @@
 {
   flake.modules.nixos.networking = {
-    networking.networkmanager.enable = true;
+    networking.networkmanager = {
+      enable = true;
+      wifi.backend = "iwd";
+    };
   };
 }

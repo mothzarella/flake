@@ -5,6 +5,18 @@ topLevel @ {
   withSystem,
   ...
 }: {
+  options.flake.profiles = lib.mkOption {
+    type = lib.types.attrsOf (lib.types.listOf lib.types.str);
+    default = {};
+    description = ''
+      Named groups of `flake.modules.nixos.<name>` module names, declared
+      centrally under `modules/profiles/<name>.nix` (e.g.
+      `flake.profiles.bare-metal = ["btrfs" "secureboot" ...];`); hosts opt
+      into one or more profiles via
+      `flake.nixos.configurations.<host>.profiles`.
+    '';
+  };
+
   options.flake.nixos.configurations = lib.mkOption {
     type = lib.types.lazyAttrsOf (
       lib.types.submodule {
@@ -13,6 +25,14 @@ topLevel @ {
             Ephemeral root: auto-imports the impermanence NixOS module.
             The host is still responsible for importing btrfs/disko separately.
           '';
+          profiles = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [];
+            description = ''
+              Names of `flake.profiles.<name>` groups to import for this
+              host, in addition to `default` and the per-host module.
+            '';
+          };
           system = lib.mkOption {
             type = lib.types.enum ["x86_64-linux" "aarch64-linux"];
             default = "x86_64-linux";
@@ -40,14 +60,11 @@ topLevel @ {
           system,
           module,
           ephemeral ? false,
+          profiles ? [],
           ...
         }:
           withSystem system (
-            {
-              config,
-              pkgs,
-              ...
-            }:
+            {pkgs, ...}:
               inputs.nixpkgs.lib.nixosSystem {
                 modules =
                   [
@@ -69,7 +86,11 @@ topLevel @ {
                   # Auto-import impermanence when ephemeral
                   ++ lib.optional
                   ephemeral
-                  topLevel.config.flake.modules.nixos.impermanence;
+                  topLevel.config.flake.modules.nixos.impermanence
+                  # Import every module registered under the host's profiles
+                  ++ map
+                  (moduleName: topLevel.config.flake.modules.nixos.${moduleName})
+                  (lib.unique (lib.concatMap (profile: topLevel.config.flake.profiles.${profile} or []) profiles));
               }
           )
       )

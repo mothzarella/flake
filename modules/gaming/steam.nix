@@ -1,22 +1,16 @@
-topLevel @ {...}: {
+{
   flake = {
-    persistence.homeManager.directories.modules = [
-      ".local/share/Steam"
-      ".steam"
-    ];
-    modules.nixos.gaming = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    # Steam save data is home-level; import `homeManager.steam` to persist it.
+    modules.homeManager.steam = {
+      persistence.directories = [
+        ".local/share/Steam"
+        ".steam"
+      ];
+    };
+
+    modules.nixos.gaming = {pkgs, ...}: {
       programs.steam = {
         enable = true;
-        # package = pkgs.steam.override {
-        #   extraPkgs = with pkgs; [
-        #     bumblebee
-        #     glxinfo
-        #   ];
-        # };
 
         remotePlay.openFirewall = true;
         dedicatedServer.openFirewall = true;

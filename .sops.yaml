@@ -1,0 +1,24 @@
+# sops-nix recipients. Fill in real age public keys before creating any
+# `secrets.yaml`; `sops` refuses to encrypt against a rule with no keys.
+#
+# - Host keys are generated on first activation at
+#   `/var/lib/sops-nix/key.txt` (see `modules/secrets.nix`); read the public
+#   key with:
+#     age-keygen -y /var/lib/sops-nix/key.txt
+# - Personal/admin keys are generated once with:
+#     age-keygen -o ~/.config/sops/age/keys.txt
+#
+# After adding a key here, re-encrypt existing files for it with:
+#   sops updatekeys <path/to/secrets.yaml>
+keys:
+  # - &host_cinnamon age1...
+  # - &host_paprika age1...
+  # - &admin_tar age1...
+
+creation_rules:
+  - path_regex: secrets\.yaml$
+    key_groups:
+      - age: []
+        # - *host_cinnamon
+        # - *host_paprika
+        # - *admin_tar

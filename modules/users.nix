@@ -1,5 +1,5 @@
 topLevel @ {lib, ...}: let
-  inherit (topLevel.config.flake.modules) nixos homeManager;
+  inherit (topLevel.config.flake.modules) homeManager;
 in {
   options.flake.users = lib.mkOption {
     type = lib.types.attrsOf (lib.types.submodule ({name, ...}: {
@@ -63,25 +63,23 @@ in {
         };
 
         userMeta.${username} = {
-          name = user.name;
-          email = user.email;
+          inherit (user) name;
+          inherit (user) email;
         };
 
-        home-manager.users.${username} = {
-          imports =
-            [
-              homeManager.default
-              homeManager.home-manager
-            ]
-            # Merge the home-manager module with the same username
-            ++ lib.optional
-            (homeManager ? "${username}")
-            homeManager."${username}"
-            # Add impermanence if the system is ephemeral
-            ++ lib.optional
-            (topLevel.config.flake.nixos.configurations.${config.networking.hostName}.ephemeral or false)
-            homeManager.impermanence;
-        };
+        home-manager.users.${username}.imports =
+          [
+            homeManager.default
+            homeManager.home-manager
+          ]
+          # Merge the home-manager module with the same username
+          ++ lib.optional
+          (homeManager ? "${username}")
+          homeManager."${username}"
+          # Add impermanence if the system is ephemeral
+          ++ lib.optional
+          (topLevel.config.flake.nixos.configurations.${config.networking.hostName}.ephemeral or false)
+          homeManager.impermanence;
       };
     }))
   topLevel.config.flake.users;

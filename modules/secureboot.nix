@@ -2,7 +2,6 @@ topLevel @ {inputs, ...}: let
   inherit (topLevel.config.flake.modules) nixos;
 in {
   flake = {
-    persistence.nixos.directories = ["/var/lib/sbctl"];
     modules.nixos.secureboot = {
       pkgs,
       lib,
@@ -12,6 +11,9 @@ in {
         inputs.lanzaboote.nixosModules.lanzaboote
         nixos.boot
       ];
+
+      # Persisted here so the key bundle survives root rollback.
+      persistence.directories = ["/var/lib/sbctl"];
 
       environment.systemPackages = with pkgs; [
         sbctl

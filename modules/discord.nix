@@ -4,5 +4,6 @@
       enable = true;
       vencord.useSystem = true;
     };
+    persistence.directories = [".config/vesktop"];
   };
 }
