@@ -43,7 +43,15 @@ jobs:
           nix_path: nixpkgs=channel:nixpkgs-unstable
 
       - name: Install nix-update
-        run: nix profile add nixpkgs#nix-update
+        run: |
+          ver="$(nix --version 2>/dev/null || true)"
+          if printf '%s\n' "$ver" | grep -qE '\(Nix\) 2\.'; then
+            echo "Detected Nix 2.x — installing via nix-env"
+            nix-env -iA nixpkgs.nix-update
+          else
+            echo "Detected Nix 3.x — installing via nix profile add"
+            nix profile add nixpkgs#nix-update
+          fi
 
       - name: Set up git
         run: |
