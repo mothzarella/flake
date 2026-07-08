@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.firefox = {
+  flake.modules.homeManager.browsers = {
     programs.firefox = {
       enable = true;
 
@@ -39,9 +39,6 @@
           "gfx.webrender.all" = true;
           "media.ffmpeg.vaapi.enabled" = true;
           "browser.tabs.unloadOnLowMemory" = true;
-
-          "sidebar.revamp" = true;
-          "sidebar.verticalTabs" = true;
         };
       };
     };

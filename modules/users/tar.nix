@@ -14,7 +14,7 @@ in {
     module = {
       home-manager.users.tar = {pkgs, ...}: {
         imports = with homeManager; [
-          firefox
+          browsers
           discord
           zed
         ];
