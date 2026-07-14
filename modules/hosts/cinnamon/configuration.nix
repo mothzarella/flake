@@ -1,5 +1,5 @@
 topLevel @ {inputs, ...}: let
-  inherit (topLevel.config.flake.modules) nixos;
+  inherit (topLevel.config.flake.modules) nixos homeManager;
 in {
   flake.nixos.configurations.cinnamon = {
     system = "x86_64-linux";
@@ -9,7 +9,13 @@ in {
       imports = [
         inputs.hardware.nixosModules.common-pc-laptop-ssd
 
+        nixos.gaming
+        nixos.nvidia
         nixos.user-tar
+      ];
+
+      home-manager.users.tar.imports = [
+        homeManager.niri
       ];
 
       boot.initrd.availableKernelModules = ["xhci_pci" "nvme"];

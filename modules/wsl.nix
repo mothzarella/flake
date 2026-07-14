@@ -3,7 +3,7 @@
   lib,
   ...
 }: {
-  flake.modules.nixos.wsl = {config, ...}: {
+  flake.modules.nixos.wsl = {
     imports = [inputs.nixos-wsl.nixosModules.default];
 
     wsl = {
@@ -13,9 +13,9 @@
       startMenuLaunchers = true;
     };
 
-    # WSL graphics support — only when both WSL and graphics are active
+    # WSL graphics env vars. Inerte se graphics non è importato.
     # https://github.com/nix-community/NixOS-WSL/issues/454
-    environment.variables = lib.mkIf config.hardware.graphics.enable {
+    environment.variables = {
       GALLIUM_DRIVER = "d3d12";
       MESA_D3D12_DEFAULT_ADAPTER_NAME = lib.mkDefault "NVIDIA";
       LD_LIBRARY_PATH = "/usr/lib/wsl/lib:/run/opengl-driver/lib";

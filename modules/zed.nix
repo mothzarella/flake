@@ -4,6 +4,7 @@
     pkgs,
     ...
   }: {
+    stylix.targets.zed.enable = false;
     programs.zed-editor = {
       enable = true;
       installRemoteServer = true;

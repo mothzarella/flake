@@ -12,7 +12,6 @@ in {
         nixos.boot
       ];
 
-      # Persisted here so the key bundle survives root rollback.
       persistence.directories = ["/var/lib/sbctl"];
 
       environment.systemPackages = with pkgs; [
@@ -30,6 +29,23 @@ in {
           enable = true;
           autoReboot = true;
         };
+
+        configurationLimit = 8;
+
+        # measuredBoot = {
+        #   enable = true;
+        #   pcrs = [
+        #     0
+        #     4
+        #     7
+        #   ];
+
+        #   autoCryptenroll = {
+        #     enable = true;
+        #     device = "/dev/disk/by-partuuid/<UUID-partizione-luks>";
+        #     autoReboot = true;
+        #   };
+        # };
       };
     };
   };

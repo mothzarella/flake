@@ -5,7 +5,7 @@
   ...
 }: {
   flake.overlays.default = lib.composeManyExtensions [
-    inputs.llm-agents.overlays.default
+    inputs.llm-agents.overlays.shared-nixpkgs
     inputs.chaotic.overlays.default
 
     (final: _prev: {

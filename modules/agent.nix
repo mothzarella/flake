@@ -41,6 +41,13 @@
         ];
       };
 
+      # TODO: spostare apiKey in un secret sops quando le chiavi age
+      # saranno configurate in .sops.yaml. Struttura:
+      #   sops.secrets.pi-api-key = {
+      #     sopsFile = ./secrets.yaml;
+      #   };
+      # e leggere il valore runtime da:
+      #   config.sops.secrets.pi-api-key.path
       "${piPath}/models.json".text = builtins.toJSON {
         providers = {
           crofai = {
